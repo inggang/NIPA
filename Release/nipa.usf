@@ -1,0 +1,4 @@
+#Mon Jul 06 09:11:24 KST 2015
+com=29
+interface=CC3x Serial(UART) Interface
+device=SimpleLink Wifi CC3100/CC3200
