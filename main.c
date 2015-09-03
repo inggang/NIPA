@@ -132,8 +132,12 @@ unsigned int   g_uiPortNum = PORT_NUM;
 unsigned char  g_ucConnectionStatus = 0;
 unsigned char  g_ucSimplelinkstarted = 0;
 unsigned long  g_ulIpAddr = 0;
-Sl_WlanNetworkEntry_t netEntries[20];
-Sl_WlanNetworkEntry_t testAP[5];
+/* 20150903_CIB */
+Sl_WlanNetworkEntry_t netEntries[100];
+Sl_WlanNetworkEntry_t testAP[20];
+/* OLD */
+//Sl_WlanNetworkEntry_t netEntries[20];
+//Sl_WlanNetworkEntry_t testAP[5];
 
 int scanCount;
 static char ConSid[MAXIMAL_SSID_LENGTH];
@@ -819,19 +823,19 @@ static long WlanConnect()
     long lRetVal = 0;
     int i=0;
     char *sid = GetConnectedSid();
-if ( *sid ){
-    secParams.Key  = (_i8*) "";
-    secParams.KeyLen = 0;
-    secParams.Type = SL_SEC_TYPE_OPEN;
-}else{
-    secParams.Key = (signed char*)SECURITY_KEY;
-    secParams.KeyLen = strlen(SECURITY_KEY);
-    secParams.Type = SECURITY_TYPE;
-}
+	if ( *sid ){
+	    secParams.Key  = (_i8*) "";
+	    secParams.KeyLen = 0;
+	    secParams.Type = SL_SEC_TYPE_OPEN;
+	} else {
+	    secParams.Key = (signed char*)SECURITY_KEY;
+	    secParams.KeyLen = strlen(SECURITY_KEY);
+	    secParams.Type = SECURITY_TYPE;
+	}
 
-if( !*sid ){
-    strcpy((char *)sid,(const char *)SSID_NAME);
-}
+	if( !*sid ){
+	    strcpy((char *)sid,(const char *)SSID_NAME);
+	}
 
      UART_PRINT("try to Connect AP[%s] with key[%s]....\n", sid, secParams.Key);
 
@@ -1108,16 +1112,19 @@ RETRY:
 	strcpy(tcpSendBuf,(const char *)"#DEVINFO:IT,");
     sprintf(strbuf,"%x%x%x%x%x%x,0,",macAddressVal[0],macAddressVal[1],macAddressVal[2],macAddressVal[3],macAddressVal[4],macAddressVal[5]);
     strcat(tcpSendBuf,strbuf);
-    for(i=0 ; i<3 ; i++)
+    for(i=0; i<3; i++)
     {
-    	strcat(tcpSendBuf,testAP[i].ssid);
-        strcat(tcpSendBuf,"&");
-        sprintf(strbuf,"%d",testAP[i].rssi);
-        strcat(tcpSendBuf, strbuf);
-        strcat(tcpSendBuf,"&");
-        sprintf(strbuf,"%d",2400);
-        strcat(tcpSendBuf,strbuf);
-        if(i != 2) strcat(tcpSendBuf,",");
+		if( strncmp(testAP[i].ssid,TESTAP_SID_PREFIX,strlen(TESTAP_SID_PREFIX)) == 0)
+		{
+	    	strcat(tcpSendBuf,testAP[i].ssid);
+	        strcat(tcpSendBuf,"&");
+	        sprintf(strbuf,"%d",testAP[i].rssi);
+	        strcat(tcpSendBuf, strbuf);
+	        strcat(tcpSendBuf,"&");
+	        sprintf(strbuf,"%d",2400);
+	        strcat(tcpSendBuf,strbuf);
+	        if(i != 2) strcat(tcpSendBuf,",");
+    	}
     }
     sprintf(strbuf,",,,");
     strcat(tcpSendBuf,strbuf);
